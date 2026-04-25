@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=JetBrains+Mono&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-brand-primary: #2D5A27; /* Forest Green */
+  --color-brand-secondary: #8C7851; /* Earthy Tan */
+  --color-brand-accent: #E9F0E8; /* Soft Mint */
+  --color-brand-gold: #D4A373;
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-[#F9F7F2] text-[#1A1A1A] antialiased;
+  }
+  
+  h1, h2, h3, .font-editorial {
+    @apply font-display tracking-tight text-brand-primary;
+  }
+}
+
+.organic-card {
+  @apply bg-white rounded-[2rem] shadow-sm border border-brand-primary/10 p-6;
+}
+
+.bottom-nav-item {
+  @apply flex flex-col items-center gap-1 text-brand-primary/30 transition-all duration-300;
+}
+
+.bottom-nav-item.active {
+  @apply text-brand-primary scale-110;
+}
+
+.secondary-label {
+  @apply text-[10px] uppercase tracking-[0.1em] font-bold text-brand-secondary;
+}

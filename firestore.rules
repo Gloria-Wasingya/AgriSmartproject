@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Helpers
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function isAdmin() { 
+      return isSignedIn() && (
+        request.auth.token.email == 'gloriawasingya5@gmail.com' || 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Collections
+    
+    // Users
+    match /users/{userId} {
+      function isValidUser(data) {
+        return data.keys().hasAll(['uid', 'email', 'role']) &&
+               data.uid is string && data.uid.size() <= 128 &&
+               data.email is string && data.email.size() <= 255 &&
+               data.role in ['farmer', 'buyer', 'admin'];
+      }
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && isValidUser(incoming()) && incoming().uid == userId;
+      allow update: if isOwner(userId) && isValidUser(incoming()) && 
+                    incoming().role == existing().role; // Cannot change role
+    }
+
+    // Listings
+    match /listings/{listingId} {
+      function isValidListing(data) {
+        return data.keys().hasAll(['farmerId', 'cropType', 'price', 'quantity', 'location']) &&
+               data.farmerId is string && data.farmerId.size() <= 128 &&
+               data.cropType is string && data.cropType.size() <= 100 &&
+               data.price is number && data.price >= 0 &&
+               data.quantity is string && data.quantity.size() <= 50 &&
+               data.location is string && data.location.size() <= 200;
+      }
+      allow read: if isSignedIn();
+      allow create: if isVerified() && isValidListing(incoming()) && incoming().farmerId == request.auth.uid;
+      allow update: if (isOwner(existing().farmerId) || isAdmin()) && 
+                    isValidListing(incoming()) && 
+                    incoming().farmerId == existing().farmerId;
+      allow delete: if isOwner(existing().farmerId) || isAdmin();
+    }
+
+    // Diagnoses
+    match /diagnoses/{diagnosisId} {
+      function isValidDiagnosis(data) {
+        return data.keys().hasAll(['userId', 'cropType', 'disease']) &&
+               data.userId is string && data.userId.size() <= 128 &&
+               data.cropType is string && data.cropType.size() <= 100 &&
+               data.disease is string && data.disease.size() <= 100;
+      }
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isVerified() && isValidDiagnosis(incoming()) && incoming().userId == request.auth.uid;
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+  }
+}

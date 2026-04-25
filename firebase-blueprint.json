@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Store user preferences and profile information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["farmer", "buyer", "admin"] },
+        "language": { "type": "string", "enum": ["English", "Luganda", "Swahili"] },
+        "location": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Listing": {
+      "title": "Marketplace Listing",
+      "description": "A crop listing for sale in the marketplace.",
+      "type": "object",
+      "properties": {
+        "farmerId": { "type": "string" },
+        "farmerName": { "type": "string" },
+        "cropType": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "string" },
+        "location": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "sold", "deleted"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["farmerId", "cropType", "price", "quantity", "location"]
+    },
+    "Diagnosis": {
+      "title": "Crop Disease Diagnosis",
+      "description": "History of crop disease detections.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "cropType": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "disease": { "type": "string" },
+        "cause": { "type": "string" },
+        "treatment": { "type": "string" },
+        "confidence": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "cropType", "disease"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents."
+    },
+    "/listings/{listingId}": {
+      "schema": "Listing",
+      "description": "Public marketplace listings."
+    },
+    "/diagnoses/{diagnosisId}": {
+      "schema": "Diagnosis",
+      "description": "Private diagnosis history for users."
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "AgriSmart Uganda",
+  "description": "A smart agriculture platform for Ugandan farmers providing Gemini-powered crop disease detection, localized farming advice, and a direct-to-buyer marketplace.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "Gemini Vision Crop Disease Detection",
+    "AI Farming Assistant (Multilingual)",
+    "Smart Marketplace with Price Suggestions"
+  ]
+}
